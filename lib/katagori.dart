@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/indonesian.dart';
-import 'package:flutter_application_1/italia.dart';
-import 'package:flutter_application_1/jepang.dart';
-import 'package:flutter_application_1/malaysia.dart';
+import 'package:flutter_application_1/listfoodcategory.dart';
 
 class CategoryScreen extends StatelessWidget {
+  final List categorydata;
+  CategoryScreen({super.key, required this.categorydata});
   final List<String> countries = [
     'Italian',
     'Indonesian',
@@ -28,61 +27,35 @@ class CategoryScreen extends StatelessWidget {
         ),
       ),
       body: ListView.builder(
-        itemCount: countries.length,
+        itemCount: categorydata.length,
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () {
-              _navigateToFoodScreen(context, countries[index]);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ListFoodCategories(
+                          category: categorydata[index]["strCategory"])));
             },
             child: CategoryCard(
-              country: countries[index],
+              category: categorydata[index]["strCategory"],
+              imageUrl: categorydata[index]["strCategoryThumb"],
             ),
           );
         },
       ),
     );
   }
-
-  void _navigateToFoodScreen(BuildContext context, String country) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) {
-        // Gunakan switch case untuk menentukan layar yang sesuai dengan negara
-        switch (country) {
-          case 'Indonesian':
-            return IndonesianFoodScreen();
-          case 'Italian':
-            return ItaliaFoodScreen();
-          case 'Jepang':
-            return JepangFoodScreen();
-          case 'Malaysia':
-            return MalayFoodScreen();
-          default:
-            return Scaffold(); // Layar default jika tidak ada yang sesuai
-        }
-      },
-    ));
-  }
 }
 
 class CategoryCard extends StatelessWidget {
-  final String country;
+  final String category;
+  final String imageUrl;
 
-  CategoryCard({required this.country});
+  CategoryCard({required this.category, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
-    String imageUrl = '';
-
-    if (country == 'Italian') {
-      imageUrl = 'assets/image/italia.JPG';
-    } else if (country == 'Indonesian') {
-      imageUrl = 'assets/image/indo.jpg';
-    } else if (country == 'Jepang') {
-      imageUrl = 'assets/image/jepang.png';
-    } else if (country == 'Malaysia') {
-      imageUrl = 'assets/image/malay.jpg';
-    }
-
     return Card(
       elevation: 4.0,
       shape: RoundedRectangleBorder(
@@ -97,7 +70,7 @@ class CategoryCard extends StatelessWidget {
               topLeft: Radius.circular(10.0),
               topRight: Radius.circular(10.0),
             ),
-            child: Image.asset(
+            child: Image.network(
               imageUrl,
               height: 200.0,
               width: double.infinity,
@@ -110,7 +83,7 @@ class CategoryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  'Food from $country',
+                  category,
                   style: TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,

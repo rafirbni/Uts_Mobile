@@ -1,13 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/indonesian.dart';
-import 'package:flutter_application_1/italia.dart';
-import 'package:flutter_application_1/jepang.dart';
-import 'package:flutter_application_1/malaysia.dart';
+import 'package:flutter_application_1/listfoodcategory.dart';
+import 'package:flutter_application_1/models/recipe_api.dart';
 
 import 'Fooditem.dart';
 import 'katagori.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List datafixcategories = [];
+  List datafixpopular = [];
+
+  void setupDataCategories() async {
+    Map data = await RecipeApi().getDatasCategory();
+    setState(() {
+      datafixcategories = data["categories"];
+    });
+    print(datafixcategories);
+  }
+
+  void setupDataPopular() async {
+    Map data = await RecipeApi().getDatasPopular();
+    setState(() {
+      datafixpopular = data["meals"];
+    });
+    print(datafixpopular);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    setupDataCategories();
+    setupDataPopular();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,55 +118,24 @@ class HomeScreen extends StatelessWidget {
                         SizedBox(
                             height: 6.0), // Spasi antara judul dan kategori
                         Expanded(
-                          child: ListView(
+                          child: ListView.builder(
+                            itemCount: datafixcategories.length,
                             scrollDirection: Axis.horizontal,
-                            children: <Widget>[
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        IndonesianFoodScreen(),
-                                  ));
-                                },
-                                child: CategoryCard(
-                                  categoryName: 'Indonesian',
-                                  iconData: Icons.local_pizza,
-                                ),
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) => GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => ListFoodCategories(
+                                      category: datafixcategories[index]
+                                          ['strCategory']),
+                                ));
+                              },
+                              child: CategoryCard(
+                                categoryName: datafixcategories[index]
+                                    ['strCategory'],
+                                iconData: Icons.restaurant_menu,
                               ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => JepangFoodScreen(),
-                                  ));
-                                },
-                                child: CategoryCard(
-                                  categoryName: 'Japanes',
-                                  iconData: Icons.fastfood,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => ItaliaFoodScreen(),
-                                  ));
-                                },
-                                child: CategoryCard(
-                                  categoryName: 'Italian',
-                                  iconData: Icons.lock_clock,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => MalayFoodScreen(),
-                                  ));
-                                },
-                                child: CategoryCard(
-                                  categoryName: 'Malaysian',
-                                  iconData: Icons.food_bank,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ],
@@ -152,7 +151,8 @@ class HomeScreen extends StatelessWidget {
                           ),
                           onPressed: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => CategoryScreen(),
+                              builder: (context) => CategoryScreen(
+                                  categorydata: datafixcategories),
                             ));
                           },
                         ),
@@ -175,7 +175,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: FoodItemList(),
+                child: FoodItemList(fooddatas: datafixpopular),
               ),
             ],
           ),
